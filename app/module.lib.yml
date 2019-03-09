@@ -1,5 +1,33 @@
 #@ load("@ytt:module", "module")
+#@ load("@ytt:struct", "struct")
+#@ load("@ytt:template", "template")
 
-#@ load("app/all.lib.yml", "make")
+#@ load("app/ingress.lib.yml", "ingress")
+#@ load("app/service.lib.yml", "service")
+#@ load("app/deployment.lib.yml", "deployment")
+#@ load("app/hpa.lib.yml", "hpa")
+
+#! provides a way build a basic app based on default Deployment and Ingress
+#@ def make(name, container, port=80, replicas=1, volumes=None):
+#@   props = struct.make(
+#@     name=name,
+#@     container=container,
+#@     port=port,
+#@     replicas=replicas,
+#@     volumes=volumes,
+#@   )
+#@   return struct.make_and_bind(props,
+#@     ingress=ingress,
+#@     service=service,
+#@     deployment=deployment,
+#@     hpa=hpa,
+#@     config=_config,
+#@   )
+#@ end
+
+#@ def _config(props):
+#@ for/end conf in [ingress(props), service(props), deployment(props), hpa(props)]:
+--- #@ template.replace(conf)
+#@ end
 
 #@ app = module.make("app", make=make)

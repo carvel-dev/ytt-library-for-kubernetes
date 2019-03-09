@@ -1,0 +1,25 @@
+#@ load("app/refs.lib.yml", "resource_labels", "deployment_name")
+
+#@ def hpa(props):
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: #@ props.name + "-hpa"
+  labels: #@ resource_labels(props)
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: #@ deployment_name(props)
+  minReplicas: 1
+  maxReplicas: 10
+  #! alternatively ... targetCPUUtilizationPercentage
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+#@ end

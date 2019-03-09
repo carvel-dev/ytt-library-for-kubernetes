@@ -1,0 +1,15 @@
+#@ load("app/refs.lib.yml", "service_name", "resource_labels", "deployment_labels")
+
+#@ def service(props):
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: #@ service_name(props)
+  labels: #@ resource_labels(props)
+spec:
+  ports:
+  - port: #@ props.port
+    protocol: TCP
+  selector: #@ deployment_labels(props)
+#@ end

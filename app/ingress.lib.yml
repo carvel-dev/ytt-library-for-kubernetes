@@ -1,0 +1,18 @@
+#@ load("app/refs.lib.yml", "service_name", "resource_labels")
+
+#@ def ingress(props):
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: #@ props.name + "-ingress"
+  labels: #@ resource_labels(props)
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: #@ service_name(props)
+          servicePort: #@ props.port
+#@ end
