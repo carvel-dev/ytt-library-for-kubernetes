@@ -1,0 +1,30 @@
+#@ load("@ytt:template", "template")
+
+#@ load("app/module.lib.yml", "app")
+
+---
+#@ hello2_port = 80
+#@ def hello2_container():
+image: nginx
+args:
+- -listen=:(@= str(hello2_port) @)
+- -text=$(cat /etc/text/string.txt)
+volumeMounts:
+- mountPath: /etc/text
+  name: text-volume
+#@ end
+
+---
+#@ def hello2_volumes():
+- name: text-volume
+  configMap:
+    configMapName: hello2-text
+#@ end
+
+---
+apiVersion: v1
+kind: ConfigMap
+stringData:
+  string.txt: "hello from configmap!"
+
+--- #@ template.replace(app.make("hello2", hello2_container(), port=hello2_port, replicas=10, volumes=hello2_volumes()).config())

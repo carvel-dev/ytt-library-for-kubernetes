@@ -11,14 +11,3 @@ args:
 #@ end
 
 --- #@ template.replace(app.make("hello", hello_container(), port=hello_port).config())
-
----
-#@ hello2_port = 80
-#@ def hello2_container():
-image: nginx
-args:
-- -listen=:(@= str(hello2_port) @)
-- -text="hello!"
-#@ end
-
---- #@ template.replace(app.make("hello2", hello2_container(), port=hello2_port).config())
