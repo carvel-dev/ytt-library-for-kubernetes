@@ -4,6 +4,13 @@
 
 ## App Component
 
+Examples:
+
+- [example.yml](example.yml)
+- [example-with-volumes.yml](example-with-volumes.yml)
+
+Walk-through:
+
 ```bash
 $ mkdir my-app && cd my-app
 $ git clone https://github.com/get-ytt/k8s-lib _ytt_lib/github.com/get-ytt/k8s-lib
@@ -32,5 +39,3 @@ args:
 ```
 
 Result will include configuration with a Deployment, Service, Ingress and HPA.
-
-Run `ytt tpl -R -f .` to see live example.
