@@ -2,9 +2,15 @@
 #@ load("@ytt:template", "template")
 
 #! provides a way build a basic app based on default Deployment and Ingress
-#@ def make(name, container, port=80):
-#@   obj = struct.make(name=name, container=container, port=port)
-#@   return struct.make_and_bind(obj,
+#@ def make(name, container, port=80, replicas=1, volumes=None):
+#@   props = struct.make(
+#@     name=name,
+#@     container=container,
+#@     port=port,
+#@     replicas=replicas,
+#@     volumes=volumes,
+#@   )
+#@   return struct.make_and_bind(props,
 #@     ingress=_ingress,
 #@     service=_service,
 #@     deployment=_deployment,
@@ -13,106 +19,110 @@
 #@   )
 #@ end
 
-#@ def _config(self):
-#@ for/end conf in [_ingress(self), _service(self), _deployment(self), _hpa(self)]:
+#@ def _config(props):
+#@ for/end conf in [_ingress(props), _service(props), _deployment(props), _hpa(props)]:
 --- #@ template.replace(conf)
 #@ end
 
 ---
-#@ def _resource_labels(self):
-app.kube-lib.get-ytt.io/name: #@ _deployment_name(self)
+#@ def _resource_labels(props):
+app.kube-lib.get-ytt.io/name: #@ _deployment_name(props)
 #@ end
 
-#@ def _ingress(self):
+#@ def _ingress(props):
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: #@ self.name + "-ingress"
-  labels: #@ _resource_labels(self)
+  name: #@ props.name + "-ingress"
+  labels: #@ _resource_labels(props)
 spec:
   rules:
   - http:
       paths:
       - path: /
         backend:
-          serviceName: #@ _service_name(self)
-          servicePort: #@ self.port
+          serviceName: #@ _service_name(props)
+          servicePort: #@ props.port
 #@ end
 
 ---
-#@ def _service_name(self):
-#@   return self.name + "-service"
+#@ def _service_name(props):
+#@   return props.name + "-service"
 #@ end
 
-#@ def _service(self):
+#@ def _service(props):
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: #@ _service_name(self)
-  labels: #@ _resource_labels(self)
+  name: #@ _service_name(props)
+  labels: #@ _resource_labels(props)
 spec:
   ports:
-  - port: #@ self.port
+  - port: #@ props.port
     protocol: TCP
-  selector: #@ _deployment_labels(self)
+  selector: #@ _deployment_labels(props)
 #@ end
 
 ---
-#@ deployment_lbl_key = "app.kube-lib.get-ytt.io/deployment-name"
+#@ _deployment_lbl_key = "app.kube-lib.get-ytt.io/deployment-name"
 
-#@ def _deployment_labels(self):
-#@   return {"deployment_lbl_key": _deployment_name(self)}
+#@ def _deployment_labels(props):
+#@   return {_deployment_lbl_key: _deployment_name(props)}
 #@ end
 
-#@ def _deployment_name(self):
-#@   return self.name
+#@ def _deployment_name(props):
+#@   return props.name
 #@ end
 
-#@ def _deployment(self):
+#@ def _deployment(props):
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: #@ _deployment_name(self)
-  labels: #@ _resource_labels(self)
+  name: #@ _deployment_name(props)
+  labels: #@ _resource_labels(props)
 spec:
   selector:
-    matchLabels: #@ _deployment_labels(self)
-  replicas: 1
+    matchLabels: #@ _deployment_labels(props)
+  replicas: #@ props.replicas
   template:
     metadata:
-      labels: #@ _deployment_labels(self)
+      labels: #@ _deployment_labels(props)
     spec:
+      #@ if/end props.volumes:
+      volumes: #@ props.volumes
+
       containers:
       - name: default
         ports:
-        - containerPort: #@ self.port
-        _: #@ template.replace(self.container)
+        - containerPort: #@ props.port
+        _: #@ template.replace(props.container)
+
     affinity:
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
         - labelSelector:
             matchExpressions:
-            - key: #@ deployment_lbl_key
+            - key: #@ _deployment_lbl_key
               operator: In
-              values: #@ [_deployment_name(self)]
+              values: #@ [_deployment_name(props)]
           topologyKey: "kubernetes.io/hostname"
 #@ end
 
-#@ def _hpa(self):
+#@ def _hpa(props):
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: #@ self.name + "-hpa"
-  labels: #@ _resource_labels(self)
+  name: #@ props.name + "-hpa"
+  labels: #@ _resource_labels(props)
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: #@ _deployment_name(self)
+    name: #@ _deployment_name(props)
   minReplicas: 1
   maxReplicas: 10
   #! alternatively ... targetCPUUtilizationPercentage
