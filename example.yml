@@ -1,0 +1,24 @@
+#@ load("@ytt:template", "template")
+
+#@ load("app/module.lib.yml", "app")
+
+#@ hello_port = 80
+#@ def hello_app_container():
+image: nginx
+args:
+- -listen=:(@= str(hello_port) @)
+- -text="hello!"
+#@ end
+
+--- #@ template.replace(app.make("hello", hello_app_container(), port=hello_port).config())
+
+---
+#@ hello2_port = 80
+#@ def hello2_app_container():
+image: nginx
+args:
+- -listen=:(@= str(hello2_port) @)
+- -text="hello!"
+#@ end
+
+--- #@ template.replace(app.make("hello2", hello2_app_container(), port=hello2_port).config())

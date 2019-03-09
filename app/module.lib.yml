@@ -1,0 +1,5 @@
+#@ load("@ytt:module", "module")
+
+#@ load("app/all.lib.yml", "make")
+
+#@ app = module.make("app", make=make)

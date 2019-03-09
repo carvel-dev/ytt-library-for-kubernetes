@@ -1,0 +1,126 @@
+#@ load("@ytt:struct", "struct")
+#@ load("@ytt:template", "template")
+
+#! provides a way build a basic app based on default Deployment and Ingress
+#@ def make(name, container, port=80):
+#@   obj = struct.make(name=name, container=container, port=port)
+#@   return struct.make_and_bind(obj,
+#@     ingress=_ingress,
+#@     service=_service,
+#@     deployment=_deployment,
+#@     hpa=_hpa,
+#@     config=_config,
+#@   )
+#@ end
+
+#@ def _config(self):
+#@ for/end conf in [_ingress(self), _service(self), _deployment(self), _hpa(self)]:
+--- #@ template.replace(conf)
+#@ end
+
+---
+#@ def _resource_labels(self):
+app.kube-lib.get-ytt.io/name: #@ _deployment_name(self)
+#@ end
+
+#@ def _ingress(self):
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: #@ self.name + "-ingress"
+  labels: #@ _resource_labels(self)
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: #@ _service_name(self)
+          servicePort: #@ self.port
+#@ end
+
+---
+#@ def _service_name(self):
+#@   return self.name + "-service"
+#@ end
+
+#@ def _service(self):
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: #@ _service_name(self)
+  labels: #@ _resource_labels(self)
+spec:
+  ports:
+  - port: #@ self.port
+    protocol: TCP
+  selector: #@ _deployment_labels(self)
+#@ end
+
+---
+#@ deployment_lbl_key = "app.kube-lib.get-ytt.io/deployment-name"
+
+#@ def _deployment_labels(self):
+#@   return {"deployment_lbl_key": _deployment_name(self)}
+#@ end
+
+#@ def _deployment_name(self):
+#@   return self.name
+#@ end
+
+#@ def _deployment(self):
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #@ _deployment_name(self)
+  labels: #@ _resource_labels(self)
+spec:
+  selector:
+    matchLabels: #@ _deployment_labels(self)
+  replicas: 1
+  template:
+    metadata:
+      labels: #@ _deployment_labels(self)
+    spec:
+      containers:
+      - name: default
+        ports:
+        - containerPort: #@ self.port
+        _: #@ template.replace(self.container)
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: #@ deployment_lbl_key
+              operator: In
+              values: #@ [_deployment_name(self)]
+          topologyKey: "kubernetes.io/hostname"
+#@ end
+
+#@ def _hpa(self):
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: #@ self.name + "-hpa"
+  labels: #@ _resource_labels(self)
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: #@ _deployment_name(self)
+  minReplicas: 1
+  maxReplicas: 10
+  #! alternatively ... targetCPUUtilizationPercentage
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+#@ end
