@@ -1,6 +1,8 @@
 # k8s-lib
 
-## Usage
+`k8s-lib` is a [YTT](https://github.com/get-ytt/ytt) library that includes reusable K8s components.
+
+## App Component
 
 ```bash
 $ mkdir my-app && cd my-app
@@ -13,19 +15,20 @@ $ ytt tpl -R -f .
 
 ```yaml
 #@ load("@ytt:template", "template")
+
 #@ load("@github.com/get-ytt/k8s-lib:app/module.lib.yml", "app")
 
 ---
 #@ hello_port = 80
 
-#@ def hello_app_container():
+#@ def hello_container():
 image: hashicorp/http-echo
 args:
 - -listen=:(@= str(hello_port) @)
 - -text="hello!"
 #@ end
 
---- #@ template.replace(app.make("hello", hello_app_container(), port=hello_port).config())
+--- #@ template.replace(app.make("hello", hello_container(), port=hello_port).config())
 ```
 
 Result will include configuration with a Deployment, Service, Ingress and HPA.
