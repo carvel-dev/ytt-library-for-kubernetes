@@ -2,6 +2,12 @@
 
 set -e
 
-ytt tpl -R -f . --filter-template-file example.yml
-ytt tpl -R -f . --filter-template-file example-with-volumes.yml
-ytt tpl -R -f . --filter-template-file example-with-overlay.yml
+rm -rf ./tmp
+mkdir ./tmp
+
+git clone . ./tmp/_ytt_lib/github.com/get-ytt/k8s-lib
+cp -r examples/ ./tmp
+
+ytt tpl -R -f ./tmp --filter-template-file app.yml
+ytt tpl -R -f ./tmp --filter-template-file app-with-volumes.yml
+ytt tpl -R -f ./tmp --filter-template-file app-with-overlay.yml
