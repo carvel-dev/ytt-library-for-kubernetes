@@ -8,6 +8,7 @@ Examples:
 
 - [example.yml](example.yml)
 - [example-with-volumes.yml](example-with-volumes.yml)
+- [example-with-overlay.yml](example-with-overlay.yml)
 
 Walk-through:
 
@@ -39,3 +40,5 @@ args:
 ```
 
 Result will include configuration with a Deployment, Service, Ingress and HPA.
+
+If you want to customize aspects of the configuration that are not exposed, use [overlay feature](https://github.com/get-ytt/ytt/blob/master/docs/lang-ref-ytt-overlay.md) as shown in [this example](example-with-overlay.yml).

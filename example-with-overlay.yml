@@ -1,0 +1,24 @@
+#@ load("@ytt:template", "template")
+#@ load("@ytt:overlay", "overlay")
+
+#@ load("app/module.lib.yml", "app")
+
+#@ hello_port = 80
+#@ def hello_container():
+image: nginx
+args:
+- -listen=:(@= str(hello_port) @)
+- -text="hello!"
+#@ end
+
+#@ def hello_changes():
+#@overlay/match by=overlay.subset({"kind":"Ingress"})
+---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+#@ end
+
+--- #@ template.replace(overlay.apply(app.make("hello", hello_container(), port=hello_port).config(), hello_changes()))
