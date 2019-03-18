@@ -1,6 +1,6 @@
 #@ load("@ytt:template", "template")
 
-#@ load("@github.com/get-ytt/k8s-lib:app/module.lib.yml", "app")
+#@ load("@github.com/k14s/k8s-lib:app/module.lib.yml", "app")
 
 #@ hello_port = 80
 #@ def hello_container():

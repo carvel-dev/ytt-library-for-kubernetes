@@ -1,8 +1,8 @@
 #@ def resource_labels(props):
-app.kube-lib.get-ytt.io/name: #@ deployment_name(props)
+app.k8s-lib.k14s.io/name: #@ deployment_name(props)
 #@ end
 
-#@ deployment_lbl_key = "app.kube-lib.get-ytt.io/deployment-name"
+#@ deployment_lbl_key = "app.k8s-lib.k14s.io/deployment-name"
 
 #@ def deployment_labels(props):
 #@   return {deployment_lbl_key: deployment_name(props)}

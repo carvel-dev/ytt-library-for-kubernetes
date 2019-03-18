@@ -5,7 +5,7 @@ set -e
 rm -rf ./tmp
 mkdir ./tmp
 
-git clone . ./tmp/_ytt_lib/github.com/get-ytt/k8s-lib
+git clone . ./tmp/_ytt_lib/github.com/k14s/k8s-lib
 cp -r examples/ ./tmp
 
 ytt tpl -R -f ./tmp --filter-template-file app.yml
