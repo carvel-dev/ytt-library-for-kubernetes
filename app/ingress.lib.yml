@@ -17,4 +17,6 @@ spec:
         backend:
           serviceName: #@ service_name(props)
           servicePort: #@ props.port
+    #@ if/end props.domain:
+    host: #@ props.domain
 #@ end

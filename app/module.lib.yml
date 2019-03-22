@@ -8,11 +8,12 @@
 #@ load("app/hpa.lib.yml", "hpa")
 
 #! provides a way build a basic app based on default Deployment and Ingress
-#@ def make(name, container, namespace=None, port=80, replicas=1, volumes=None):
+#@ def make(name, container, namespace=None, domain=None, port=80, replicas=1, volumes=None):
 #@   props = struct.make(
 #@     name=name,
 #@     container=container,
 #@     namespace=namespace,
+#@     domain=domain,
 #@     port=port,
 #@     replicas=replicas,
 #@     volumes=volumes,
