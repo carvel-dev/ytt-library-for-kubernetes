@@ -3,15 +3,16 @@
 
 #@ load("@github.com/k14s/k8s-lib:app/module.lib.yml", "app")
 
-#@ hello_port = 80
-#@ def hello_container():
+#@ port = 80
+
+#@ def container():
 image: hashicorp/http-echo
 args:
-- -listen=:(@= str(hello_port) @)
+- -listen=:(@= str(port) @)
 - -text="hello!"
 #@ end
 
-#@ def hello_changes():
+#@ def updates():
 #@overlay/match by=overlay.subset({"kind":"Ingress"})
 ---
 metadata:
@@ -21,4 +22,6 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 #@ end
 
---- #@ template.replace(overlay.apply(app.make("hello", hello_container(), port=hello_port).config(), hello_changes()))
+#@ app_config = app.make("hello", container(), port=port).config()
+
+--- #@ template.replace(overlay.apply(app_config, updates()))

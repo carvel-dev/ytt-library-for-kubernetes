@@ -2,12 +2,12 @@
 
 #@ load("@github.com/k14s/k8s-lib:app/module.lib.yml", "app")
 
----
-#@ hello2_port = 80
-#@ def hello2_container():
+#@ port = 80
+
+#@ def container():
 image: hashicorp/http-echo
 args:
-- -listen=:(@= str(hello2_port) @)
+- -listen=:(@= str(port) @)
 - -text=$(cat /etc/text/string.txt)
 volumeMounts:
 - mountPath: /etc/text
@@ -15,7 +15,7 @@ volumeMounts:
 #@ end
 
 ---
-#@ def hello2_volumes():
+#@ def volumes():
 - name: text-volume
   configMap:
     configMapName: hello2-text
@@ -27,4 +27,4 @@ kind: ConfigMap
 stringData:
   string.txt: "hello from configmap!"
 
---- #@ template.replace(app.make("hello2", hello2_container(), port=hello2_port, replicas=10, volumes=hello2_volumes()).config())
+--- #@ template.replace(app.make("hello2", container(), port=port, replicas=10, volumes=volumes()).config())

@@ -16,7 +16,6 @@ spec:
     name: #@ deployment_name(props)
   minReplicas: 1
   maxReplicas: 10
-  #! alternatively ... targetCPUUtilizationPercentage
   metrics:
   - type: Resource
     resource:
