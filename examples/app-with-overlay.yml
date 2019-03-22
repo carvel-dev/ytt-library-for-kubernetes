@@ -5,7 +5,7 @@
 
 #@ hello_port = 80
 #@ def hello_container():
-image: nginx
+image: hashicorp/http-echo
 args:
 - -listen=:(@= str(hello_port) @)
 - -text="hello!"

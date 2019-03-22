@@ -5,7 +5,7 @@
 ---
 #@ hello2_port = 80
 #@ def hello2_container():
-image: nginx
+image: hashicorp/http-echo
 args:
 - -listen=:(@= str(hello2_port) @)
 - -text=$(cat /etc/text/string.txt)
