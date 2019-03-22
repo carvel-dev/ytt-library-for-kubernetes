@@ -7,6 +7,8 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: #@ props.name + "-hpa"
   labels: #@ resource_labels(props)
+  #@ if/end props.namespace:
+  namespace: #@ props.namespace
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

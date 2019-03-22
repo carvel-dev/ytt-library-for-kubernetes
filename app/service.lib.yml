@@ -7,6 +7,8 @@ kind: Service
 metadata:
   name: #@ service_name(props)
   labels: #@ resource_labels(props)
+  #@ if/end props.namespace:
+  namespace: #@ props.namespace
 spec:
   ports:
   - port: #@ props.port

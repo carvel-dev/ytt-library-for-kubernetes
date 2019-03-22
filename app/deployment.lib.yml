@@ -9,6 +9,8 @@ kind: Deployment
 metadata:
   name: #@ deployment_name(props)
   labels: #@ resource_labels(props)
+  #@ if/end props.namespace:
+  namespace: #@ props.namespace
 spec:
   selector:
     matchLabels: #@ deployment_labels(props)

@@ -7,6 +7,8 @@ kind: Ingress
 metadata:
   name: #@ props.name + "-ingress"
   labels: #@ resource_labels(props)
+  #@ if/end props.namespace:
+  namespace: #@ props.namespace
 spec:
   rules:
   - http:
