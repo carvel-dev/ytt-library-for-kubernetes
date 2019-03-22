@@ -2,7 +2,7 @@
 
 #@ def hpa(props):
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
   name: #@ props.name + "-hpa"
@@ -21,7 +21,23 @@ spec:
   - type: Resource
     resource:
       name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 50
+      targetAverageUtilization: 50
+---
+#! If you are not using kapp, this resource should be removed through overlays:
+#!   #@overlay/match by=overlay.subset({"apiVersion": "kapp.k14s.io/v1alpha1", "kind": "Config"})
+#!   #@overlay/remove
+#!   ---
+apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+rebaseRules:
+- path: [spec, replicas]
+  merge: copy
+  #! Prefer HPA configured value from the cluster
+  sources: [existing]
+  resourceMatchers:
+  - kindNamespaceNameMatcher:
+      kind: Deployment
+      #@ if/end props.namespace:
+      namespace: #@ props.namespace
+      name: #@ deployment_name(props)
 #@ end
