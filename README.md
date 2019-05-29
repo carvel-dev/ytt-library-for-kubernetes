@@ -4,6 +4,14 @@
 
 ## App Library
 
+`app` library provides `make()` function that builds apps that consist of Deployment, Service, Ingress and HPA. More specifically:
+
+- Ingress is configured with `/` path and points to a Service which points to a Deployment
+- Deployment configures Pod anti affinity based on node hostname
+- Deployment by default has 1 Pod replica
+- HPA scales Pods between 1 to 10, aiming for target avg. CPU util. of 50
+- kapp's Config that picks up Deployment's `spec.replica` value from the server (set by HPA) instead of local copy
+
 Examples:
 
 - [app.yml](examples/app.yml): App that only requires Docker image configuration
@@ -38,7 +46,7 @@ args:
 --- #@ template.replace(app.make("hello", container(), port=port).config())
 ```
 
-Result will include configuration with a Deployment, Service, Ingress and HPA. Example output can be seen [here](https://gist.github.com/cppforlife/f0016812ef398a6c6a22164c90999ce7).
+Example output can be seen [here](https://gist.github.com/cppforlife/f0016812ef398a6c6a22164c90999ce7).
 
 ## Development
 
