@@ -1,16 +1,6 @@
 #@ load("@ytt:module", "module")
 
-#@ _default_admin_ns="k8s-lib-nsa-admin"
-
-#@ def make_admin(ns=_default_admin_ns):
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: #@ ns
-#@ end
-
-#@ def make(tenant_ns, admin_ns=_default_admin_ns):
+#@ def make(tenant_ns, api_server_address=None):
 #@ sa_name = tenant_ns + "-sa"
 ---
 apiVersion: v1
@@ -34,7 +24,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: #@ tenant_ns + "-role"
-  namespace: #@ admin_ns
+  namespace: #@ tenant_ns
 rules:
 - apiGroups: ["*"]
   resources: ["*"]
@@ -44,7 +34,7 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: #@ tenant_ns + "-role-binding"
-  namespace: #@ admin_ns
+  namespace: #@ tenant_ns
 subjects:
 - kind: ServiceAccount
   name: #@ sa_name
@@ -53,6 +43,50 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: #@ tenant_ns + "-role"
+
+#@ if/end api_server_address:
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: #@ tenant_ns + "-creds"
+  namespace: #@ tenant_ns
+  annotations:
+    kapp.k14s.io/update-strategy: fallback-on-replace
+spec:
+  template:
+    spec:
+      serviceAccount: #@ sa_name
+      restartPolicy: Never
+      containers:
+      - name: print-creds
+        image: alpine
+        command:
+        - sh
+        - -c
+        - |
+          cat <<-EOF
+          apiVersion: v1
+          kind: Config
+          preferences: {}
+          clusters:
+          - name: my-cluster
+            cluster:
+              certificate-authority-data: "$(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt|base64|tr -d '\n')"
+              server: https://(@= api_server_address @)
+          users:
+          - name: (@= sa_name @)
+            user:
+              as-user-extra: {}
+              token: "$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+          contexts:
+          - name: my-ctx
+            context:
+              cluster: my-cluster
+              namespace: (@= tenant_ns @)
+              user: (@= sa_name @)
+          current-context: my-ctx
+          EOF
 #@ end
 
-#@ nsa = module.make("nsa", make=make, make_admin=make_admin)
+#@ nsa = module.make("nsa", make=make)

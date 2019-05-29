@@ -1,9 +1,6 @@
 #@ load("@ytt:template", "template")
 #@ load("@github.com/k14s/k8s-lib:nsa/module.lib.yml", "nsa")
 
-#! configure admin
---- #@ template.replace(nsa.make_admin())
-
 #! configure each tenant
 #@ for/end name in ["tenant1", "tenant2", "tenant3"]:
---- #@ template.replace(nsa.make(name))
+--- #@ template.replace(nsa.make(name, api_server_address="kube-api-server-ip"))

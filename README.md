@@ -50,11 +50,11 @@ Example output can be seen [here](https://gist.github.com/cppforlife/f0016812ef3
 
 ## NSA (Namespaced Service Account) Library
 
-`nsa` library provides `make_admin()` and `make()` functions to create service accounts that are scoped to a particular namespace.
+`nsa` library provides `make()` functions to create service accounts that are scoped to a particular namespace.
 
 Examples:
 
-- [nsa.yml](examples/nsa.yml): Create admin configuration and three tenants. Each tenant has a service account with full privileges within their namespace.
+- [nsa.yml](examples/nsa.yml): Creates three tenants. Each tenant has a service account with full privileges within their namespace.
 
 ## Development
 
