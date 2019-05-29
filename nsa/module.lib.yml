@@ -1,0 +1,58 @@
+#@ load("@ytt:module", "module")
+
+#@ _default_admin_ns="k8s-lib-nsa-admin"
+
+#@ def make_admin(ns=_default_admin_ns):
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ ns
+#@ end
+
+#@ def make(tenant_ns, admin_ns=_default_admin_ns):
+#@ sa_name = tenant_ns + "-sa"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ tenant_ns
+
+#! service account lives in tenant namespace
+#! so that tenant has access to it
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: #@ sa_name
+  namespace: #@ tenant_ns
+
+#! both role and its binding live in admin namespace
+#! so that tenant cannot modify it
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ tenant_ns + "-role"
+  namespace: #@ admin_ns
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ tenant_ns + "-role-binding"
+  namespace: #@ admin_ns
+subjects:
+- kind: ServiceAccount
+  name: #@ sa_name
+  namespace: #@ tenant_ns
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: #@ tenant_ns + "-role"
+#@ end
+
+#@ nsa = module.make("nsa", make=make, make_admin=make_admin)
