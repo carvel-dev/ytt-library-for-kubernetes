@@ -38,7 +38,7 @@ args:
 --- #@ template.replace(app.make("hello", container(), port=port).config())
 ```
 
-Result will include configuration with a Deployment, Service, Ingress and HPA.
+Result will include configuration with a Deployment, Service, Ingress and HPA. Example output can be seen [here](https://gist.github.com/cppforlife/f0016812ef398a6c6a22164c90999ce7).
 
 ## Development
 
