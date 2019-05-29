@@ -1,14 +1,14 @@
 # k8s-lib
 
-`k8s-lib` is a [YTT](https://github.com/k14s/ytt) library that includes reusable K8s components.
+`k8s-lib` is a [ytt](https://github.com/k14s/ytt) library that includes reusable K8s components.
 
-## App Component
+## App Library
 
 Examples:
 
-- [app.yml](examples/app.yml)
-- [app-with-volumes.yml](examples/app-with-volumes.yml)
-- [app-with-overlay.yml](examples/app-with-overlay.yml)
+- [app.yml](examples/app.yml): App that only requires Docker image configuration
+- [app-with-volumes.yml](examples/app-with-volumes.yml): App that uses ConfigMap volume
+- [app-with-overlay.yml](examples/app-with-overlay.yml): App that customizes Ingress
 
 Walk-through:
 
@@ -16,7 +16,7 @@ Walk-through:
 $ mkdir my-app && cd my-app
 $ git clone https://github.com/k14s/k8s-lib _ytt_lib/github.com/k14s/k8s-lib
 $ # add config.yml with below contents
-$ ytt tpl -R -f .
+$ ytt -f .
 ```
 
 `config.yml` contents:
