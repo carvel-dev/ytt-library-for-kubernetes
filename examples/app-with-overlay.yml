@@ -1,3 +1,7 @@
+#! If you want to customize any aspect of the configuration that is not explicitly exposed via app.make(...),
+#! you can use [overlay feature](https://github.com/k14s/ytt/blob/master/docs/lang-ref-ytt-overlay.md).
+#! For example, below we have `updates()` to force SSL redirection for this particular app.
+
 #@ load("@ytt:template", "template")
 #@ load("@ytt:overlay", "overlay")
 

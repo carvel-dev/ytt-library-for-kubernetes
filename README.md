@@ -8,14 +8,14 @@ Examples:
 
 - [app.yml](examples/app.yml): App that only requires Docker image configuration
 - [app-with-volumes.yml](examples/app-with-volumes.yml): App that uses ConfigMap volume
-- [app-with-overlay.yml](examples/app-with-overlay.yml): App that customizes Ingress
+- [app-with-overlay.yml](examples/app-with-overlay.yml): App that customizes Ingress to force SSL redirection
 
-Walk-through:
+To make a simple app that uses k8s-lib:
 
 ```bash
 $ mkdir my-app && cd my-app
 $ git clone https://github.com/k14s/k8s-lib _ytt_lib/github.com/k14s/k8s-lib
-$ # add config.yml with below contents
+$ # create `config.yml` with below contents
 $ ytt -f .
 ```
 
@@ -23,7 +23,6 @@ $ ytt -f .
 
 ```yaml
 #@ load("@ytt:template", "template")
-#@ load("@ytt:overlay", "overlay")
 
 #@ load("@github.com/k14s/k8s-lib:app/module.lib.yml", "app")
 
@@ -36,24 +35,10 @@ args:
 - -text="hello!"
 #@ end
 
-#@ def updates():
-#@overlay/match by=overlay.subset({"kind":"Ingress"})
----
-metadata:
-  #@overlay/match missing_ok=True
-  annotations:
-    #@overlay/match missing_ok=True
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-#@ end
-
-#@ app_config = app.make("hello", container(), port=port).config()
-
---- #@ template.replace(overlay.apply(app_config, updates()))
+--- #@ template.replace(app.make("hello", container(), port=port).config())
 ```
 
 Result will include configuration with a Deployment, Service, Ingress and HPA.
-
-If you want to customize any aspect of the configuration that is not explicitly exposed, above example uses [overlay feature](https://github.com/k14s/ytt/blob/master/docs/lang-ref-ytt-overlay.md) as well to force SSL redirection for this particular app.
 
 ## Development
 
