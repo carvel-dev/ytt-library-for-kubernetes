@@ -39,7 +39,7 @@ $ ytt -f .
 #@ def container():
 image: hashicorp/http-echo
 args:
-- -listen=:(@= str(port) @)
+- #@ "-listen=:" + str(port)
 - -text="hello!"
 #@ end
 

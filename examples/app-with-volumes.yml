@@ -7,7 +7,7 @@
 #@ def container():
 image: hashicorp/http-echo
 args:
-- -listen=:(@= str(port) @)
+- #@ "-listen=:" + str(port)
 - -text=$(cat /etc/text/string.txt)
 volumeMounts:
 - mountPath: /etc/text

@@ -60,6 +60,7 @@ spec:
         command:
         - sh
         - -c
+        #@yaml/text-templated-strings
         - |
           cat <<-EOF
           apiVersion: v1
