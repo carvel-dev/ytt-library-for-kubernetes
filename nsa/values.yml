@@ -1,0 +1,8 @@
+#@data/values
+---
+tenant_ns:
+
+#! if api_server_address is provided then a Job 
+#! will be generated to print kubeconfig credentials
+#! *** not secure, since creds are logged ***
+api_server_address:

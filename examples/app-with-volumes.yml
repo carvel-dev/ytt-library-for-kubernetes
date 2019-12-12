@@ -1,30 +1,38 @@
 #@ load("@ytt:template", "template")
+#@ load("@ytt:library", "library")
 
-#@ load("@github.com/k14s/k8s-lib:app/module.lib.yml", "app")
+#@ ns = "custom"
 
-#@ port = 80
-
-#@ def container():
-image: hashicorp/http-echo
-args:
-- #@ "-listen=:" + str(port)
-- -text=$(cat /etc/text/string.txt)
-volumeMounts:
-- mountPath: /etc/text
-  name: text-volume
-#@ end
-
----
-#@ def volumes():
+#@ def config(port=80):
+namespace: #@ ns
+name: hello
+replicas: 10
+port: 80
+#@overlay/match-child-defaults missing_ok=True
+container:
+  image: hashicorp/http-echo
+  args:
+  - #@ "-listen=:" + str(port)
+  - -text=$(cat /etc/text/string.txt)
+  volumeMounts:
+  - mountPath: /etc/text
+    name: text-volume
+#@overlay/match-child-defaults missing_ok=True
+volumes:
+#@overlay/append
 - name: text-volume
   configMap:
-    configMapName: hello2-text
+    configMapName: hello-text
 #@ end
 
+#@ app = library.get("github.com/k14s/k8s-lib/app").with_data_values(config())
+
+--- #@ template.replace(app.eval())
 ---
 apiVersion: v1
 kind: ConfigMap
+metadata:
+  name: hello-text
+  namespace: #@ ns
 stringData:
   string.txt: "hello from configmap!"
-
---- #@ template.replace(app.make("hello2", container(), port=port, replicas=10, volumes=volumes()).config())

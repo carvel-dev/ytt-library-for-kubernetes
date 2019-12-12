@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+#@ load("refs.lib.yml", "service_name", "resource_labels")
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: #@ data.values.name + "-ingress"
+  labels: #@ resource_labels()
+  #@ if/end data.values.namespace:
+  namespace: #@ data.values.namespace
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: #@ service_name()
+          servicePort: #@ data.values.port
+    #@ if/end data.values.domain:
+    host: #@ data.values.domain

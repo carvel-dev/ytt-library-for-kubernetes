@@ -1,0 +1,15 @@
+#@ load("@ytt:data", "data")
+#@ load("refs.lib.yml", "service_name", "resource_labels", "deployment_labels")
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: #@ service_name()
+  labels: #@ resource_labels()
+  #@ if/end data.values.namespace:
+  namespace: #@ data.values.namespace
+spec:
+  ports:
+  - port: #@ data.values.port
+    protocol: TCP
+  selector: #@ deployment_labels()

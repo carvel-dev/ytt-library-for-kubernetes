@@ -1,19 +1,19 @@
-#@ load("app/refs.lib.yml", "resource_labels", "deployment_name")
+#@ load("@ytt:data", "data")
+#@ load("refs.lib.yml", "resource_labels", "deployment_name")
 
-#@ def hpa(props):
 ---
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: #@ props.name + "-hpa"
-  labels: #@ resource_labels(props)
-  #@ if/end props.namespace:
-  namespace: #@ props.namespace
+  name: #@ data.values.name + "-hpa"
+  labels: #@ resource_labels()
+  #@ if/end data.values.namespace:
+  namespace: #@ data.values.namespace
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: #@ deployment_name(props)
+    name: #@ deployment_name()
   minReplicas: 1
   maxReplicas: 10
   metrics:
@@ -36,7 +36,6 @@ rebaseRules:
   resourceMatchers:
   - kindNamespaceNameMatcher:
       kind: Deployment
-      #@ if/end props.namespace:
-      namespace: #@ props.namespace
-      name: #@ deployment_name(props)
-#@ end
+      #@ if/end data.values.namespace:
+      namespace: #@ data.values.namespace
+      name: #@ deployment_name()

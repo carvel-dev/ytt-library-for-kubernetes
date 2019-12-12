@@ -1,0 +1,11 @@
+#@data/values
+---
+namespace: default
+
+name:
+port: 80
+domain:
+replicas: 1
+
+container: {}
+volumes: []

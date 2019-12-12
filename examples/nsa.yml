@@ -1,6 +1,7 @@
 #@ load("@ytt:template", "template")
-#@ load("@github.com/k14s/k8s-lib:nsa/module.lib.yml", "nsa")
+#@ load("@ytt:library", "library")
 
-#! configure each tenant
+#@ nsa = library.get("github.com/k14s/k8s-lib/nsa")
+
 #@ for/end name in ["tenant1", "tenant2", "tenant3"]:
---- #@ template.replace(nsa.make(name, api_server_address="kube-api-server-ip"))
+--- #@ template.replace(nsa.with_data_values({"tenant_ns": name}).eval())

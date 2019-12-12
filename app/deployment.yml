@@ -1,0 +1,38 @@
+#@ load("@ytt:template", "template")
+#@ load("@ytt:data", "data")
+#@ load("refs.lib.yml", "resource_labels", "deployment_labels", "deployment_name", "deployment_lbl_key")
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #@ deployment_name()
+  labels: #@ resource_labels()
+  #@ if/end data.values.namespace:
+  namespace: #@ data.values.namespace
+spec:
+  selector:
+    matchLabels: #@ deployment_labels()
+  replicas: #@ data.values.replicas
+  template:
+    metadata:
+      labels: #@ deployment_labels()
+    spec:
+      #@ if/end data.values.volumes:
+      volumes: #@ data.values.volumes
+
+      containers:
+      - name: default
+        ports:
+        - containerPort: #@ data.values.port
+        _: #@ template.replace(data.values.container)
+
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: #@ deployment_lbl_key
+              operator: In
+              values: #@ [deployment_name()]
+          topologyKey: "kubernetes.io/hostname"

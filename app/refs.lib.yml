@@ -1,17 +1,10 @@
-#@ def resource_labels(props):
-app.k8s-lib.k14s.io/name: #@ deployment_name(props)
+#@ load("@ytt:data", "data")
+
+#@ def resource_labels():
+app.k8s-lib.k14s.io/name: #@ deployment_name()
 #@ end
 
 #@ deployment_lbl_key = "app.k8s-lib.k14s.io/deployment-name"
-
-#@ def deployment_labels(props):
-#@   return {deployment_lbl_key: deployment_name(props)}
-#@ end
-
-#@ def deployment_name(props):
-#@   return props.name
-#@ end
-
-#@ def service_name(props):
-#@   return props.name + "-service"
-#@ end
+#@ def deployment_labels(): return {deployment_lbl_key: deployment_name()}
+#@ def deployment_name(): return data.values.name
+#@ def service_name(): return data.values.name + "-service"

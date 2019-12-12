@@ -1,26 +1,26 @@
-#@ load("@ytt:module", "module")
+#@ load("@ytt:data", "data")
 
-#@ def make(tenant_ns, api_server_address=None):
-#@ sa_name = tenant_ns + "-sa"
+#@ sa_name = data.values.tenant_ns + "-sa"
+
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: #@ tenant_ns
+  name: #@ data.values.tenant_ns
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: #@ sa_name
-  namespace: #@ tenant_ns
+  namespace: #@ data.values.tenant_ns
 
 #! both role and its binding live in a tenant namespace
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: #@ tenant_ns + "-role"
-  namespace: #@ tenant_ns
+  name: #@ data.values.tenant_ns + "-role"
+  namespace: #@ data.values.tenant_ns
 rules:
 - apiGroups: ["*"]
   resources: ["*"]
@@ -29,24 +29,24 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: #@ tenant_ns + "-role-binding"
-  namespace: #@ tenant_ns
+  name: #@ data.values.tenant_ns + "-role-binding"
+  namespace: #@ data.values.tenant_ns
 subjects:
 - kind: ServiceAccount
   name: #@ sa_name
-  namespace: #@ tenant_ns
+  namespace: #@ data.values.tenant_ns
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: #@ tenant_ns + "-role"
+  name: #@ data.values.tenant_ns + "-role"
 
-#@ if/end api_server_address:
+#@ if/end data.values.api_server_address:
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: #@ tenant_ns + "-creds"
-  namespace: #@ tenant_ns
+  name: #@ data.values.tenant_ns + "-creds"
+  namespace: #@ data.values.tenant_ns
   annotations:
     kapp.k14s.io/update-strategy: fallback-on-replace
 spec:
@@ -70,7 +70,7 @@ spec:
           - name: my-cluster
             cluster:
               certificate-authority-data: "$(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt|base64|tr -d '\n')"
-              server: https://(@= api_server_address @)
+              server: https://(@= data.values.api_server_address @)
           users:
           - name: (@= sa_name @)
             user:
@@ -80,10 +80,7 @@ spec:
           - name: my-ctx
             context:
               cluster: my-cluster
-              namespace: (@= tenant_ns @)
+              namespace: (@= data.values.tenant_ns @)
               user: (@= sa_name @)
           current-context: my-ctx
           EOF
-#@ end
-
-#@ nsa = module.make("nsa", make=make)
