@@ -14,4 +14,7 @@ ytt -f ./tmp -f ./examples/app-with-volumes.yml
 ytt -f ./tmp -f ./examples/app-with-overlay.yml
 ytt -f ./tmp -f ./examples/nsa.yml
 
+ytt -f ./kubeconfig -v address=foo.com -v username=admin -v password=bar
+ytt -f ./kubeconfig -v address=foo.com -v username=admin -v password=bar -v ca_cert=foo
+
 echo "SUCCESS (but also STAGED ALL FILES IN GIT)"

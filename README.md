@@ -61,6 +61,15 @@ Examples:
 
 - [nsa.yml](examples/nsa.yml): Creates three tenants. Each tenant has a service account with full privileges within their namespace.
 
+## kubeconfig Library
+
+Useful for generating kubeconfig based on set of credentials. Convenient when authenticating to GKE with basic auth credentials:
+
+```bash
+ytt -f kubeconfig/ -v username=admin -v password=foobar \
+  -v address=xx.xx.xx.xx --data-value-file ca_cert=<(pbpaste) > ~/.kube/dk-jan-9
+```
+
 ## Development
 
 ```bash

@@ -1,0 +1,13 @@
+#@data/values
+---
+#! API server address without scheme (https:// is always there)
+address:
+#! CA certficate for API server (optional; plain string)
+ca_cert:
+
+username:
+password:
+
+cluster: cluster1
+context: ctx1
+namespace: default
