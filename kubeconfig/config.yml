@@ -2,6 +2,15 @@
 #@ load("@ytt:assert", "assert")
 #@ load("@ytt:base64", "base64")
 
+#@ def checked_cert(cert):
+#@   cert = cert.strip()
+#@   pem_sep = "-----"
+#@   if not cert.startswith(pem_sep) or not cert.endswith("-----"):
+#@     assert.fail("expected ca_cert to start and end with "+pem_sep)
+#@   end
+#@   return cert
+#@ end
+
 apiVersion: v1
 kind: Config
 
@@ -9,7 +18,7 @@ clusters:
 - name: #@ data.values.cluster
   cluster:
     #@ if/end data.values.ca_cert:
-    certificate-authority-data: #@ base64.encode(data.values.ca_cert)
+    certificate-authority-data: #@ base64.encode(checked_cert(data.values.ca_cert))
     server: #@ "https://" + (data.values.address or assert.fail("missing address"))
 
 users:
