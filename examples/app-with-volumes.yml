@@ -8,7 +8,7 @@ namespace: #@ ns
 name: hello
 replicas: 10
 port: 80
-#@overlay/match-child-defaults missing_ok=True
+#@overlay/replace
 container:
   image: hashicorp/http-echo
   args:
@@ -17,7 +17,6 @@ container:
   volumeMounts:
   - mountPath: /etc/text
     name: text-volume
-#@overlay/match-child-defaults missing_ok=True
 volumes:
 #@overlay/append
 - name: text-volume

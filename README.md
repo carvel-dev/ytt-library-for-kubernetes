@@ -38,7 +38,7 @@ $ ytt -f .
 #@ def config(port=80):
 name: hello
 port: #@ port
-#@overlay/match-child-defaults missing_ok=True
+#@overlay/replace
 container:
   image: hashicorp/http-echo
   args:
