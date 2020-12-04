@@ -1,8 +1,8 @@
-# k8s-lib
+# ytt Library for Kubernetes
 
 !!! Must use ytt v0.23.0+ !!!
 
-`k8s-lib` is a [ytt](https://github.com/k14s/ytt) library that includes reusable K8s components.
+`carvel-ytt-library-for-kubernets` is a [ytt](https://github.com/vmware-tanzu/carvel-ytt) library that includes reusable K8s components.
 
 ## App Library
 
@@ -24,7 +24,7 @@ To make a simple app that uses k8s-lib:
 
 ```bash
 $ mkdir my-app && cd my-app
-$ git clone https://github.com/k14s/k8s-lib _ytt_lib/github.com/k14s/k8s-lib
+$ git clone https://github.com/vmware-tanzu/carvel-ytt-library-for-kubernetes _ytt_lib/github.com/vmware-tanzu/carvel-ytt-library-for-kubernetes
 $ # create `config.yml` with below contents
 $ ytt -f .
 ```
@@ -46,7 +46,7 @@ container:
   - -text="hello!"
 #@ end
 
-#@ app = library.get("github.com/k14s/k8s-lib/app").with_data_values(config())
+#@ app = library.get("github.com/vmware-tanzu/carvel-ytt-library-for-kubernetes/app").with_data_values(config())
 
 --- #@ template.replace(app.eval())
 ```

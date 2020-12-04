@@ -6,7 +6,7 @@ rm -rf ./tmp
 mkdir ./tmp
 
 git commit --allow-empty -am './hack/test.sh'
-git clone . ./tmp/_ytt_lib/github.com/k14s/k8s-lib
+git clone . ./tmp/_ytt_lib/github.com/vmware-tanzu/carvel-ytt-library-for-kubernetes
 git reset --soft head~1
 
 ytt -f ./tmp -f ./examples/app.yml

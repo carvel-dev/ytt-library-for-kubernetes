@@ -24,7 +24,7 @@ volumes:
     configMapName: hello-text
 #@ end
 
-#@ app = library.get("github.com/k14s/k8s-lib/app").with_data_values(config())
+#@ app = library.get("github.com/vmware-tanzu/carvel-ytt-library-for-kubernetes/app").with_data_values(config())
 
 --- #@ template.replace(app.eval())
 ---

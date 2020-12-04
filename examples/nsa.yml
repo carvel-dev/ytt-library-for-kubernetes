@@ -1,7 +1,7 @@
 #@ load("@ytt:template", "template")
 #@ load("@ytt:library", "library")
 
-#@ nsa = library.get("github.com/k14s/k8s-lib/nsa")
+#@ nsa = library.get("github.com/vmware-tanzu/carvel-ytt-library-for-kubernetes/nsa")
 
 #@ for/end name in ["tenant1", "tenant2", "tenant3"]:
 --- #@ template.replace(nsa.with_data_values({"tenant_ns": name}).eval())
